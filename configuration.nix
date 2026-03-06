@@ -2,9 +2,13 @@
 
 {
   # ── Boot ────────────────────────────────────────────────────────────────────
-  boot.loader = {
-    systemd-boot.enable      = true;
-    efi.canTouchEfiVariables = true;
+  boot = {
+    loader = {
+      systemd-boot.enable      = true;
+      efi.canTouchEfiVariables = true;
+    };
+    initrd.kernelModules = [ "usb_storage" "uas" "xhci_hcd" ];
+    kernelParams = [ "rootdelay=10" ];
   };
 
   # ── Filesystems ─────────────────────────────────────────────────────────────
@@ -63,11 +67,12 @@
   };
 
   # ── Users ────────────────────────────────────────────────────────────────────
+  users.users.root.hashedPasswordFile = "/nix/persist/password/audacioustux";
   users.users.audacioustux = {
     isNormalUser    = true;
     uid             = 1000;
     extraGroups     = [ "wheel" "networkmanager" ];
-    initialPassword = "changeme";
+    hashedPasswordFile = "/nix/persist/password/audacioustux";
   };
 
   # ── Packages ─────────────────────────────────────────────────────────────────
@@ -75,9 +80,13 @@
     git
     curl
     htop
+    neovim
+    sysstat
   ];
 
   # ── Misc ─────────────────────────────────────────────────────────────────────
+  hardware.enableRedistributableFirmware = true;
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
   time.timeZone = "UTC";
 
   system.stateVersion = "25.11";
